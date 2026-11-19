@@ -144,25 +144,56 @@ canvas { display:block; }
 </div>
 
 <script>
-// ── CSV source: update this path if you rename the file ──
 var CSV_URL = 'picker_data.csv';
-
 var allData = [];
 
+function cleanVal(s) {
+  // Remove surrounding quotes and whitespace
+  return s ? s.replace(/^"|"$/g,'').trim() : '';
+}
+
 function parseCSV(text) {
-  var lines = text.trim().split('\n');
+  // Normalize line endings
+  var lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
   if (lines.length < 2) return [];
-  var headers = lines[0].split(',').map(function(h){ return h.trim().replace(/^"|"$/g,''); });
+
+  // Parse header
+  var headers = lines[0].split(',').map(cleanVal);
+
   var rows = [];
   for (var i = 1; i < lines.length; i++) {
-    var cols = lines[i].split(',').map(function(c){ return c.trim().replace(/^"|"$/g,''); });
+    var line = lines[i].trim();
+    if (!line) continue;
+
+    // Split respecting quoted fields
+    var cols = [];
+    var inQ = false, cur = '';
+    for (var c = 0; c < line.length; c++) {
+      var ch = line[c];
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur); cur = ''; }
+      else { cur += ch; }
+    }
+    cols.push(cur);
+
     if (cols.length < headers.length) continue;
+
     var row = {};
-    headers.forEach(function(h, idx){ row[h] = cols[idx]; });
-    // skip Active-Batch Tote
+    headers.forEach(function(h, idx){ row[h] = cols[idx] ? cols[idx].trim() : ''; });
+
+    // Skip Active-Batch Tote
     if (row['Type'] === 'Active-Batch Tote') continue;
+
+    // Strip timestamp from dates: "11/19/2026 0:00:00" -> "11/19/2026"
+    var bd = row['BusinessDate'] || '';
+    if (bd.indexOf(' ') > -1) bd = bd.split(' ')[0];
+
+    // Parse hour — strip any decimal
+    var hourVal = parseInt(row['Hour'], 10);
+
     rows.push({
-      Hour:    parseInt(row['Hour'],    10),
+      BusinessDate: bd,
+      Hour:    hourVal,
       Shift:   row['Shift'],
       Type:    row['Type'],
       Reaches: parseInt(row['Reaches'], 10) || 0,
@@ -173,6 +204,11 @@ function parseCSV(text) {
   return rows;
 }
 
+function getTodayStr() {
+  var d = new Date();
+  return (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
+}
+
 function loadData() {
   fetch(CSV_URL + '?t=' + Date.now())
     .then(function(r){
@@ -180,9 +216,17 @@ function loadData() {
       return r.text();
     })
     .then(function(text){
-      allData = parseCSV(text);
-      document.getElementById('status-bar').textContent =
-        'Data loaded — ' + allData.length + ' records. Last fetch: ' + new Date().toLocaleTimeString();
+      var parsed = parseCSV(text);
+      // Filter to today only
+      var today = getTodayStr();
+      allData = parsed.filter(function(r){ return r.BusinessDate === today; });
+      var msg = 'Data loaded — ' + allData.length + ' records for today (' + today + '). Last fetch: ' + new Date().toLocaleTimeString();
+      if (allData.length === 0 && parsed.length > 0) {
+        // Show all data if no today match (date mismatch debug)
+        allData = parsed;
+        msg = 'Data loaded — ' + allData.length + ' records (all dates). Last fetch: ' + new Date().toLocaleTimeString();
+      }
+      document.getElementById('status-bar').textContent = msg;
       refresh();
     })
     .catch(function(err){
@@ -334,27 +378,14 @@ function updateClock() {
 
 function getSampleData() {
   return [
-    {Hour:5,Shift:"1st",Type:"Active-Batch",Reaches:82,Units:487,PkMSID:"B1510979"},
-    {Hour:5,Shift:"1st",Type:"Active-Batch",Reaches:151,Units:901,PkMSID:"B1108319"},
-    {Hour:5,Shift:"1st",Type:"Active-Batch",Reaches:139,Units:1408,PkMSID:"B1109009"},
-    {Hour:5,Shift:"1st",Type:"Active-Batch",Reaches:173,Units:1117,PkMSID:"B1510800"},
-    {Hour:5,Shift:"1st",Type:"Active-Batch",Reaches:159,Units:1164,PkMSID:"B1510828"},
-    {Hour:5,Shift:"1st",Type:"Active-Discrete",Reaches:100,Units:600,PkMSID:"D1107221"},
-    {Hour:5,Shift:"1st",Type:"Active-Discrete",Reaches:145,Units:870,PkMSID:"D1108500"},
-    {Hour:6,Shift:"1st",Type:"Active-Batch",Reaches:112,Units:989,PkMSID:"B1108321"},
-    {Hour:6,Shift:"1st",Type:"Active-Batch",Reaches:226,Units:2998,PkMSID:"B1510828"},
-    {Hour:6,Shift:"1st",Type:"Active-Batch",Reaches:130,Units:1107,PkMSID:"B1510979"},
-    {Hour:6,Shift:"1st",Type:"Active-Discrete",Reaches:188,Units:1128,PkMSID:"D1107221"},
-    {Hour:6,Shift:"1st",Type:"Active-Discrete",Reaches:210,Units:1260,PkMSID:"D1108500"},
-    {Hour:7,Shift:"1st",Type:"Active-Batch",Reaches:180,Units:1200,PkMSID:"B1510979"},
-    {Hour:7,Shift:"1st",Type:"Active-Batch",Reaches:210,Units:1540,PkMSID:"B1510828"},
-    {Hour:7,Shift:"1st",Type:"Active-Discrete",Reaches:230,Units:1380,PkMSID:"D1107221"},
-    {Hour:8,Shift:"1st",Type:"Active-Batch",Reaches:195,Units:1380,PkMSID:"B1510979"},
-    {Hour:8,Shift:"1st",Type:"Active-Batch",Reaches:168,Units:1120,PkMSID:"B1510828"},
-    {Hour:8,Shift:"1st",Type:"Active-Discrete",Reaches:265,Units:1590,PkMSID:"D1107221"},
-    {Hour:9,Shift:"1st",Type:"Active-Batch",Reaches:220,Units:1650,PkMSID:"B1510979"},
-    {Hour:9,Shift:"1st",Type:"Active-Batch",Reaches:198,Units:1420,PkMSID:"B1510828"},
-    {Hour:9,Shift:"1st",Type:"Active-Discrete",Reaches:290,Units:1740,PkMSID:"D1107221"}
+    {BusinessDate:'11/19/2026',Hour:5,Shift:"1st",Type:"Active-Batch",Reaches:82,Units:487,PkMSID:"B1510979"},
+    {BusinessDate:'11/19/2026',Hour:5,Shift:"1st",Type:"Active-Batch",Reaches:151,Units:901,PkMSID:"B1108319"},
+    {BusinessDate:'11/19/2026',Hour:6,Shift:"1st",Type:"Active-Batch",Reaches:112,Units:989,PkMSID:"B1108321"},
+    {BusinessDate:'11/19/2026',Hour:6,Shift:"1st",Type:"Active-Batch",Reaches:226,Units:2998,PkMSID:"B1510828"},
+    {BusinessDate:'11/19/2026',Hour:7,Shift:"1st",Type:"Active-Batch",Reaches:180,Units:1200,PkMSID:"B1510979"},
+    {BusinessDate:'11/19/2026',Hour:7,Shift:"1st",Type:"Active-Discrete",Reaches:230,Units:1380,PkMSID:"D1107221"},
+    {BusinessDate:'11/19/2026',Hour:8,Shift:"1st",Type:"Active-Batch",Reaches:195,Units:1380,PkMSID:"B1510979"},
+    {BusinessDate:'11/19/2026',Hour:9,Shift:"1st",Type:"Active-Discrete",Reaches:290,Units:1740,PkMSID:"D1107221"}
   ];
 }
 
@@ -362,7 +393,6 @@ document.getElementById('shift-filter').addEventListener('change', refresh);
 window.addEventListener('resize', function(){ buildChart(getFiltered()); });
 updateClock();
 setInterval(updateClock, 1000);
-// Reload CSV every 15 minutes automatically
 loadData();
 setInterval(loadData, 15 * 60 * 1000);
 </script>
