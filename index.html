@@ -203,14 +203,7 @@ function parseCSV(text) {
     var unitVal  = parseInt(row['Units'],   10);
 
     // Skip rows where core values didn't parse
-    if (isNaN(hourVal) || isNaN(reachVal)) {
-      if (rows.length === 0 && i <= 5) {
-        // Log first few failures to status bar for debugging
-        window._parseDebug = (window._parseDebug||[]);
-        window._parseDebug.push('Row '+i+': Hour=['+row['Hour']+'] Reaches=['+row['Reaches']+'] BD=['+bd+'] cols='+cols.length+'/'+headers.length);
-      }
-      continue;
-    }
+    if (isNaN(hourVal) || isNaN(reachVal)) continue;
 
     rows.push({
       BusinessDate: bd,
@@ -245,14 +238,20 @@ function loadData() {
       var todayRows = parsed.filter(function(r){ return r.BusinessDate === today; });
 
       var msg;
-      // Show ALL records — no date filter yet
-      allData = parsed;
-      var dates = {};
-      parsed.forEach(function(r){ dates[r.BusinessDate] = true; });
-      var dateList = Object.keys(dates).sort();
-      msg = 'Loaded ' + parsed.length + ' records. Dates: [' + dateList.join(', ') + '] today=' + today + '. Fetch: ' + new Date().toLocaleTimeString();
-      if (parsed.length === 0) {
-        msg = 'CSV loaded but 0 records parsed. today=' + today + '. Fetch: ' + new Date().toLocaleTimeString();
+      if (todayRows.length > 0) {
+        allData = todayRows;
+        msg = 'Data loaded — ' + allData.length + ' records for today (' + today + '). Last fetch: ' + new Date().toLocaleTimeString();
+      } else if (parsed.length > 0) {
+        // No rows match today — show most recent date available
+        var dates = {};
+        parsed.forEach(function(r){ dates[r.BusinessDate] = true; });
+        var dateList = Object.keys(dates).sort();
+        var latestDate = dateList[dateList.length - 1];
+        allData = parsed.filter(function(r){ return r.BusinessDate === latestDate; });
+        msg = 'Data loaded — ' + allData.length + ' records for ' + latestDate + '. Last fetch: ' + new Date().toLocaleTimeString();
+      } else {
+        allData = parsed;
+        msg = 'Data loaded — ' + parsed.length + ' records. Last fetch: ' + new Date().toLocaleTimeString();
       }
       document.getElementById('status-bar').textContent = msg;
       refresh();
