@@ -3,10 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BBW LTFC Productivity Dashboard</title>
+<title>BBW Picker Productivity Dashboard</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#0a1628; color:#fff; font-family:'Segoe UI',Arial,sans-serif; min-height:100vh; }
+
+#login-overlay {
+  position:fixed; inset:0; background:#0a1628; z-index:9999;
+  display:flex; align-items:center; justify-content:center;
+}
+.login-box {
+  background:#0d1f3c; border:1px solid #1e3a5f; border-radius:10px;
+  padding:40px 36px; width:340px; text-align:center;
+}
+.login-logo { font-size:13px; font-weight:800; color:#c8102e; letter-spacing:2px; margin-bottom:4px; }
+.login-title { font-size:20px; font-weight:900; color:#fff; margin-bottom:4px; }
+.login-sub { font-size:12px; color:#8ca0be; margin-bottom:28px; }
+.login-box input {
+  width:100%; background:#132240; border:1px solid #1e3a5f; border-radius:5px;
+  color:#fff; font-size:14px; padding:10px 14px; margin-bottom:14px; outline:none;
+}
+.login-box input:focus { border-color:#3b82f6; }
+.login-btn {
+  width:100%; background:#c8102e; color:#fff; font-size:14px; font-weight:700;
+  border:none; border-radius:5px; padding:11px; cursor:pointer; letter-spacing:.5px;
+}
+.login-btn:hover { background:#a50d25; }
+.login-error { color:#f87171; font-size:12px; margin-top:10px; min-height:16px; }
+.login-nav-btn {
+  background:#132240; border:1px solid #1e3a5f; color:#8ca0be;
+  font-size:12px; font-weight:600; padding:5px 14px; border-radius:4px;
+  cursor:pointer; display:flex; align-items:center; gap:6px;
+}
+.login-nav-btn:hover { border-color:#3b82f6; color:#fff; }
+.login-nav-btn.signed-in { color:#22c55e; border-color:#166534; background:#052e16; }
+
+/* DATE FILTER BAR */
+.date-bar {
+  background:#0d1f3c; border-bottom:1px solid #1e3a5f;
+  padding:8px 24px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.date-btn {
+  background:#132240; border:1px solid #1e3a5f; color:#8ca0be;
+  font-size:12px; font-weight:600; padding:5px 14px; border-radius:4px; cursor:pointer;
+}
+.date-btn:hover { border-color:#3b82f6; color:#fff; }
+.date-btn.active { background:#c8102e; border-color:#c8102e; color:#fff; }
+.custom-range-row { display:none; align-items:center; gap:8px; margin-left:4px; }
+.custom-range-row.show { display:flex; }
+.custom-range-row input[type=date] {
+  background:#132240; border:1px solid #1e3a5f; color:#8ca0be;
+  font-size:12px; padding:4px 8px; border-radius:4px; cursor:pointer;
+}
+.custom-range-row input[type=date]:focus { outline:none; border-color:#3b82f6; }
+.custom-range-row span { color:#8ca0be; font-size:12px; }
+.custom-apply-btn {
+  background:#3b82f6; border:none; color:#fff;
+  font-size:12px; font-weight:700; padding:5px 12px; border-radius:4px; cursor:pointer;
+}
+.custom-apply-btn:hover { background:#2563eb; }
 
 .header {
   background: linear-gradient(115deg,#0a1626 0%,#0f2447 55%,#1b3d7a 100%);
@@ -24,7 +79,6 @@ body { background:#0a1628; color:#fff; font-family:'Segoe UI',Arial,sans-serif; 
 .update-badge { display:flex; align-items:center; gap:6px; font-size:12px; color:#8ca0be; }
 .dot { width:8px; height:8px; background:#22c55e; border-radius:50%; animation:pulse 2s infinite; }
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.time-badge { background:#c8102e; color:#fff; font-size:13px; font-weight:700; padding:4px 10px; border-radius:4px; min-width:90px; text-align:center; }
 
 .tabs { background:#0d1f3c; padding:0 24px; display:flex; gap:2px; border-bottom:1px solid #1e3a5f; }
 .tab { padding:10px 20px; font-size:12px; font-weight:600; color:#8ca0be; border-bottom:3px solid transparent; letter-spacing:.5px; cursor:pointer; }
@@ -64,7 +118,6 @@ canvas { display:block; }
 .lb-score { font-size:14px; font-weight:900; color:#fff; flex-shrink:0; }
 .lb-divider { border:none; border-top:1px solid #1e3a5f; margin:5px 0; }
 .lb-remaining-label { font-size:9px; color:#8ca0be; padding:1px 8px; letter-spacing:.5px; text-transform:uppercase; }
-.status-bar { font-size:11px; color:#8ca0be; padding:4px 24px; background:#0a1222; }
 </style>
 </head>
 <body>
@@ -72,24 +125,48 @@ canvas { display:block; }
 <div class="header">
   <div class="header-title">
     <h1>BBW Warehouse &mdash; LTFC Productivity Dashboard</h1>
-    <p>Reaches &amp; Units Picked by Hour &middot; Current Day &middot; Excludes Active-Batch Tote</p>
+    <p>Reaches &amp; Units Picked by Hour &middot; Excludes Active-Batch Tote &middot; <span id="data-updated">Loading...</span></p>
   </div>
   <div class="header-right">
     <div class="update-badge">
       <div class="dot"></div>
       <span>Updated: <span id="update-time">--:-- --</span></span>
     </div>
-    <div class="time-badge" id="live-time">Next: --:--</div>
+    <button class="login-nav-btn" id="login-nav-btn" onclick="showLogin()">&#128274; Login</button>
+  </div>
+</div>
+
+<div id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">BBW WAREHOUSE</div>
+    <div class="login-title">Picker Dashboard</div>
+    <div class="login-sub">Enter your team password to continue</div>
+    <input type="password" id="login-input" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()" />
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div class="date-bar">
+  <button class="date-btn active" onclick="setDateMode('today',this)">Today</button>
+  <button class="date-btn" onclick="setDateMode('yesterday',this)">Yesterday</button>
+  <button class="date-btn" onclick="setDateMode('7days',this)">Last 7 Days</button>
+  <button class="date-btn" onclick="setDateMode('30days',this)">Last 30 Days</button>
+  <button class="date-btn" onclick="setDateMode('mtd',this)">Month to Date</button>
+  <button class="date-btn" onclick="setDateMode('custom',this)">Custom Range&hellip;</button>
+  <div class="custom-range-row" id="custom-range-row">
+    <input type="date" id="custom-from" />
+    <span>to</span>
+    <input type="date" id="custom-to" />
+    <button class="custom-apply-btn" onclick="applyCustomRange()">Apply</button>
   </div>
 </div>
 
 <div class="tabs">
-  <div class="tab active">CURRENT DAY</div>
-  <div class="tab">PREVIOUS DAY</div>
-  <div class="tab">MONTH TO DATE</div>
+  <div class="tab active" onclick="switchTab(0)">CURRENT DAY</div>
+  <div class="tab" onclick="switchTab(1)">PREVIOUS DAY</div>
+  <div class="tab" onclick="switchTab(2)">MONTH TO DATE</div>
 </div>
-
-<div class="status-bar" id="status-bar">Loading data...</div>
 
 <div class="kpi-row">
   <div class="kpi-card">
@@ -127,8 +204,8 @@ canvas { display:block; }
     <div class="filter-row">
       <span class="filter-label">SHIFT:</span>
       <select id="shift-filter">
-        <option value="all">All Shifts</option>
-        <option value="1st" selected>1st</option>
+        <option value="all" selected>All Shifts</option>
+        <option value="1st">1st</option>
         <option value="2nd">2nd</option>
         <option value="3rd">3rd</option>
       </select>
@@ -144,284 +221,294 @@ canvas { display:block; }
 </div>
 
 <script>
-var CSV_URL = 'picker_data.csv';
+var CSV_URL = 'https://raw.githubusercontent.com/cevabbw/bbw-picker-dashboard/main/picker_data.csv';
 var allData = [];
+var currentTab = 0;
+var dateMode = 'today';
+var customFrom = null, customTo = null;
 
-function cleanVal(s) {
-  // Remove surrounding quotes, whitespace, and trailing spaces Access pads into fields
-  return s ? s.replace(/^"|"$/g,'').trim() : '';
-}
-
+function cleanVal(s) { return s ? s.replace(/^"|"$/g,'').trim() : ''; }
 function splitCSVLine(line) {
-  // Proper CSV split: handles quoted fields that may contain commas
-  var cols = [];
-  var inQ = false, cur = '';
-  for (var c = 0; c < line.length; c++) {
-    var ch = line[c];
-    if (ch === '"') { inQ = !inQ; }
-    else if (ch === ',' && !inQ) { cols.push(cur); cur = ''; }
-    else { cur += ch; }
+  var cols=[], inQ=false, cur='';
+  for(var c=0;c<line.length;c++){
+    var ch=line[c];
+    if(ch==='"'){inQ=!inQ;}
+    else if(ch===','&&!inQ){cols.push(cur);cur='';}
+    else{cur+=ch;}
   }
   cols.push(cur);
   return cols;
 }
-
 function parseCSV(text) {
-  // Normalize line endings
-  var lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
-  if (lines.length < 2) return [];
-
-  // Parse header — strip BOM if present
-  var headerLine = lines[0].replace(/^﻿/,'');
-  var headers = splitCSVLine(headerLine).map(cleanVal);
-
-  var rows = [];
-  for (var i = 1; i < lines.length; i++) {
-    var line = lines[i].trim();
-    if (!line) continue;
-
-    var cols = splitCSVLine(line);
-    if (cols.length < headers.length) continue;
-
-    var row = {};
-    headers.forEach(function(h, idx){ row[h] = cleanVal(cols[idx] || ''); });
-
-    // Skip Active-Batch Tote (filtered in VBS but double-check here)
-    if (row['Type'] === 'Active-Batch Tote') continue;
-
-    // Strip timestamp: "11/19/2026 0:00:00" -> "11/19/2026"
-    // Note: Access exports dates WITHOUT quotes so they come through raw
-    var bd = row['BusinessDate'] || '';
-    if (bd.indexOf(' ') > -1) bd = bd.split(' ')[0];
-    bd = bd.trim();
-
-    // Parse hour — Access exports as plain integer, no quotes
-    var hourVal = parseInt(row['Hour'], 10);
-
-    // Parse reaches — may be quoted or unquoted
-    var reachVal = parseInt(row['Reaches'], 10);
-    var unitVal  = parseInt(row['Units'],   10);
-
-    // Skip rows where core values didn't parse
-    if (isNaN(hourVal) || isNaN(reachVal)) continue;
-
-    rows.push({
-      BusinessDate: bd,
-      Hour:    hourVal,
-      Shift:   row['Shift'],
-      Type:    row['Type'],
-      Reaches: reachVal,
-      Units:   isNaN(unitVal) ? 0 : unitVal,
-      PkMSID:  row['PkMSID']   // already trimmed by cleanVal
-    });
+  var lines=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
+  if(lines.length<2) return [];
+  var headerLine=lines[0].replace(/^﻿/,'');
+  var headers=splitCSVLine(headerLine).map(cleanVal);
+  var rows=[];
+  for(var i=1;i<lines.length;i++){
+    var line=lines[i].trim();
+    if(!line) continue;
+    var cols=splitCSVLine(line);
+    if(cols.length<headers.length) continue;
+    var row={};
+    headers.forEach(function(h,idx){row[h]=cleanVal(cols[idx]||'');});
+    if(row['Type']==='Active-Batch Tote') continue;
+    var bd=row['BusinessDate']||'';
+    if(bd.indexOf(' ')>-1) bd=bd.split(' ')[0];
+    bd=bd.trim();
+    var hourVal=parseInt(row['Hour'],10);
+    var reachVal=parseInt(row['Reaches'],10);
+    if(isNaN(hourVal)||isNaN(reachVal)) continue;
+    rows.push({BusinessDate:bd,Hour:hourVal,Shift:row['Shift'],Type:row['Type'],
+      Reaches:reachVal,Units:isNaN(parseInt(row['Units'],10))?0:parseInt(row['Units'],10),PkMSID:row['PkMSID']});
   }
   return rows;
 }
-
 function getTodayStr() {
-  // Returns M/D/YYYY with no leading zeros — matches Access export format exactly
-  var d = new Date();
-  return (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
+  var d=new Date();
+  return (d.getMonth()+1)+'/'+(d.getDate())+'/'+d.getFullYear();
 }
-
-function loadData() {
-  fetch(CSV_URL + '?t=' + Date.now())
-    .then(function(r){
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.text();
-    })
-    .then(function(text){
-      var parsed = parseCSV(text);
-      var today = getTodayStr();
-
-      // Filter to today's business date
-      var todayRows = parsed.filter(function(r){ return r.BusinessDate === today; });
-
-      var msg;
-      if (todayRows.length > 0) {
-        allData = todayRows;
-        msg = 'Data loaded — ' + allData.length + ' records for today (' + today + '). Last fetch: ' + new Date().toLocaleTimeString();
-      } else if (parsed.length > 0) {
-        // No rows match today — show most recent date available
-        var dates = {};
-        parsed.forEach(function(r){ dates[r.BusinessDate] = true; });
-        var dateList = Object.keys(dates).sort();
-        var latestDate = dateList[dateList.length - 1];
-        allData = parsed.filter(function(r){ return r.BusinessDate === latestDate; });
-        msg = 'Data loaded — ' + allData.length + ' records for ' + latestDate + '. Last fetch: ' + new Date().toLocaleTimeString();
-      } else {
-        allData = parsed;
-        msg = 'Data loaded — ' + parsed.length + ' records. Last fetch: ' + new Date().toLocaleTimeString();
-      }
-      document.getElementById('status-bar').textContent = msg;
+function toDateStr(d) {
+  return (d.getMonth()+1)+'/'+(d.getDate())+'/'+d.getFullYear();
+}
+function getUniqueDates(data) {
+  var dates={};
+  data.forEach(function(r){dates[r.BusinessDate]=true;});
+  return Object.keys(dates).sort(function(a,b){ return new Date(a)-new Date(b); });
+}
+function setDateMode(mode, btn) {
+  dateMode = mode;
+  document.querySelectorAll('.date-btn').forEach(function(b){b.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+  var cr = document.getElementById('custom-range-row');
+  if(mode==='custom') { cr.classList.add('show'); return; }
+  cr.classList.remove('show');
+  refresh();
+}
+function applyCustomRange() {
+  customFrom = document.getElementById('custom-from').value;
+  customTo   = document.getElementById('custom-to').value;
+  if(!customFrom||!customTo) return;
+  refresh();
+}
+function switchTab(idx) {
+  currentTab=idx;
+  document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',i===idx);});
+  refresh();
+}
+function loadCSV() {
+  var xhr=new XMLHttpRequest();
+  xhr.open('GET',CSV_URL+'?t='+Date.now(),true);
+  xhr.onload=function(){
+    if(xhr.status===200){
+      allData=parseCSV(xhr.responseText);
+      var now=new Date();
+      var h=now.getHours(),m=String(now.getMinutes()).padStart(2,'0');
+      var ampm=h>=12?'PM':'AM'; var h12=h%12||12;
+      document.getElementById('data-updated').textContent='Data updated: '+h12+':'+m+' '+ampm;
       refresh();
-    })
-    .catch(function(err){
-      document.getElementById('status-bar').textContent =
-        'Could not load CSV (' + err.message + '). Showing sample data.';
-      allData = getSampleData();
-      refresh();
-    });
-}
-
-function getFiltered() {
-  var shift = document.getElementById('shift-filter').value;
-  return allData.filter(function(r){ return shift === 'all' || r.Shift === shift; });
-}
-
-function buildKPIs(data) {
-  var pickers = new Set(data.map(function(r){return r.PkMSID;})).size;
-  var totalR  = data.reduce(function(s,r){return s+r.Reaches;},0);
-  var hours   = new Set(data.map(function(r){return r.Hour;})).size;
-  document.getElementById('kpi-pickers').textContent  = pickers;
-  document.getElementById('kpi-reaches').textContent  = totalR.toLocaleString();
-  document.getElementById('kpi-avg-hour').textContent = hours ? Math.round(totalR/hours).toLocaleString() : '0';
-}
-
-function buildHourlyTotals(data) {
-  var hours = {};
-  data.forEach(function(r){ hours[r.Hour] = (hours[r.Hour]||0) + r.Reaches; });
-  var sorted = Object.keys(hours).map(Number).sort(function(a,b){return a-b;});
-  var labels = sorted.map(function(h){return h+':00';});
-  var values = sorted.map(function(h){return hours[h];});
-  var cum = [], s = 0;
-  values.forEach(function(v){s+=v; cum.push(s);});
-  return {labels:labels, values:values, cumulative:cum};
-}
-
-function buildChart(data) {
-  var t = buildHourlyTotals(data);
-  var labels = t.labels, values = t.values, cumulative = t.cumulative;
-  var wrap   = document.querySelector('.chart-wrap');
-  var canvas = document.getElementById('hourlyChart');
-  canvas.width  = wrap.clientWidth  || 500;
-  canvas.height = wrap.clientHeight || 230;
-  var W = canvas.width, H = canvas.height;
-  var ctx = canvas.getContext('2d');
-  ctx.clearRect(0,0,W,H);
-  var n = values.length;
-  if (!n) return;
-
-  var pl=52, pr=56, pt=16, pb=36;
-  var cW = W-pl-pr, cH = H-pt-pb;
-  var maxV = Math.max.apply(null,values)||1;
-  var maxC = Math.max.apply(null,cumulative)||1;
-  var slot  = cW/n;
-  var bW    = Math.min(slot*0.6, 40);
-
-  for (var i=0; i<=4; i++) {
-    var gy = pt + cH - cH*i/4;
-    ctx.strokeStyle='#1e3a5f'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(pl,gy); ctx.lineTo(pl+cW,gy); ctx.stroke();
-    ctx.fillStyle='#8ca0be'; ctx.font='9px Segoe UI'; ctx.textAlign='right';
-    ctx.fillText(Math.round(maxV*i/4), pl-4, gy+3);
-    ctx.fillStyle='#c8102e'; ctx.textAlign='left';
-    ctx.fillText(Math.round(maxC*i/4), pl+cW+4, gy+3);
-  }
-
-  for (var i=0; i<n; i++) {
-    var bx = pl + slot*i + slot/2 - bW/2;
-    var bh = cH * values[i]/maxV;
-    var by = pt + cH - bh;
-    ctx.fillStyle='rgba(59,130,246,0.8)';
-    ctx.fillRect(bx, by, bW, bh);
-    if (bh > 14) {
-      ctx.fillStyle='#fff'; ctx.font='bold 9px Segoe UI'; ctx.textAlign='center';
-      ctx.fillText(values[i], bx+bW/2, by+10);
     }
-    ctx.fillStyle='#8ca0be'; ctx.font='9px Segoe UI'; ctx.textAlign='center';
-    ctx.fillText(labels[i], pl+slot*i+slot/2, pt+cH+16);
+  };
+  xhr.send();
+  setTimeout(loadCSV, 5*60*1000);
+}
+function getFiltered() {
+  var shift=document.getElementById('shift-filter').value;
+  var dates=getUniqueDates(allData);
+  var today=getTodayStr();
+  var now=new Date(); now.setHours(0,0,0,0);
+  var filtered;
+  if(dateMode==='today'){
+    var todayData=allData.filter(function(r){return r.BusinessDate===today;});
+    if(!todayData.length&&dates.length) todayData=allData.filter(function(r){return r.BusinessDate===dates[dates.length-1];});
+    filtered=todayData;
+  } else if(dateMode==='yesterday'){
+    var yest=new Date(now); yest.setDate(yest.getDate()-1);
+    filtered=allData.filter(function(r){return r.BusinessDate===toDateStr(yest);});
+  } else if(dateMode==='7days'){
+    var d7=new Date(now); d7.setDate(d7.getDate()-6);
+    filtered=allData.filter(function(r){return new Date(r.BusinessDate)>=d7;});
+  } else if(dateMode==='30days'){
+    var d30=new Date(now); d30.setDate(d30.getDate()-29);
+    filtered=allData.filter(function(r){return new Date(r.BusinessDate)>=d30;});
+  } else if(dateMode==='mtd'){
+    var mo=now.getMonth()+1,yr=now.getFullYear();
+    filtered=allData.filter(function(r){
+      var p=r.BusinessDate.split('/'); return parseInt(p[0],10)===mo&&parseInt(p[2],10)===yr;
+    });
+  } else if(dateMode==='custom'&&customFrom&&customTo){
+    var cf=new Date(customFrom), ct=new Date(customTo);
+    filtered=allData.filter(function(r){
+      var rd=new Date(r.BusinessDate); return rd>=cf&&rd<=ct;
+    });
+  } else {
+    filtered=allData;
   }
-
-  ctx.strokeStyle='#c8102e'; ctx.lineWidth=2;
+  if(currentTab===1&&dateMode==='today'){
+    var todayIdx=dates.indexOf(today);
+    var prevDate=todayIdx>0?dates[todayIdx-1]:(dates.length>1?dates[dates.length-2]:'');
+    filtered=prevDate?allData.filter(function(r){return r.BusinessDate===prevDate;}):[];
+  }
+  return filtered.filter(function(r){return shift==='all'||r.Shift===shift;});
+}
+function buildKPIs(data) {
+  var pickers=new Set(data.map(function(r){return r.PkMSID;})).size;
+  var totalR=data.reduce(function(s,r){return s+r.Reaches;},0);
+  var hours=new Set(data.map(function(r){return r.Hour;})).size;
+  document.getElementById('kpi-pickers').textContent=pickers;
+  document.getElementById('kpi-reaches').textContent=totalR.toLocaleString();
+  document.getElementById('kpi-avg-hour').textContent=hours?Math.round(totalR/hours).toLocaleString():'0';
+}
+function buildHourlyTotals(data) {
+  var hours={};
+  data.forEach(function(r){ hours[r.Hour]=(hours[r.Hour]||0)+r.Reaches; });
+  var sorted=Object.keys(hours).map(Number).sort(function(a,b){return a-b;});
+  var labels=sorted.map(function(h){return h+':00';});
+  var values=sorted.map(function(h){return hours[h];});
+  var cum=[],s=0;
+  values.forEach(function(v){s+=v;cum.push(s);});
+  return {labels:labels,values:values,cumulative:cum};
+}
+function buildChart(data) {
+  var t=buildHourlyTotals(data);
+  var labels=t.labels,values=t.values,cumulative=t.cumulative;
+  var wrap=document.querySelector('.chart-wrap');
+  var canvas=document.getElementById('hourlyChart');
+  canvas.width=wrap.clientWidth||500;
+  canvas.height=wrap.clientHeight||230;
+  var W=canvas.width,H=canvas.height;
+  var ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  var n=values.length;
+  if(!n) return;
+  var pl=52,pr=56,pt=16,pb=36;
+  var cW=W-pl-pr,cH=H-pt-pb;
+  var maxV=Math.max.apply(null,values)||1;
+  var maxC=Math.max.apply(null,cumulative)||1;
+  var slot=cW/n;
+  var bW=Math.min(slot*0.6,40);
+  for(var i=0;i<=4;i++){
+    var gy=pt+cH-cH*i/4;
+    ctx.strokeStyle='#1e3a5f';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pl,gy);ctx.lineTo(pl+cW,gy);ctx.stroke();
+    ctx.fillStyle='#8ca0be';ctx.font='9px Segoe UI';ctx.textAlign='right';
+    ctx.fillText(Math.round(maxV*i/4),pl-4,gy+3);
+    ctx.fillStyle='#c8102e';ctx.textAlign='left';
+    ctx.fillText(Math.round(maxC*i/4),pl+cW+4,gy+3);
+  }
+  for(var i=0;i<n;i++){
+    var bx=pl+slot*i+slot/2-bW/2;
+    var bh=cH*values[i]/maxV;
+    var by=pt+cH-bh;
+    ctx.fillStyle='rgba(59,130,246,0.8)';
+    ctx.fillRect(bx,by,bW,bh);
+    if(bh>14){
+      ctx.fillStyle='#fff';ctx.font='bold 9px Segoe UI';ctx.textAlign='center';
+      ctx.fillText(values[i],bx+bW/2,by+10);
+    }
+    ctx.fillStyle='#8ca0be';ctx.font='9px Segoe UI';ctx.textAlign='center';
+    ctx.fillText(labels[i],pl+slot*i+slot/2,pt+cH+16);
+  }
+  ctx.strokeStyle='#c8102e';ctx.lineWidth=2;
   ctx.beginPath();
-  for (var i=0; i<n; i++) {
-    var cx2 = pl+slot*i+slot/2;
-    var cy2 = pt+cH - cH*cumulative[i]/maxC;
-    i===0 ? ctx.moveTo(cx2,cy2) : ctx.lineTo(cx2,cy2);
+  for(var i=0;i<n;i++){
+    var cx2=pl+slot*i+slot/2;
+    var cy2=pt+cH-cH*cumulative[i]/maxC;
+    i===0?ctx.moveTo(cx2,cy2):ctx.lineTo(cx2,cy2);
   }
   ctx.stroke();
   ctx.fillStyle='#c8102e';
-  for (var i=0; i<n; i++) {
-    var cx2 = pl+slot*i+slot/2;
-    var cy2 = pt+cH - cH*cumulative[i]/maxC;
-    ctx.beginPath(); ctx.arc(cx2,cy2,3,0,Math.PI*2); ctx.fill();
+  for(var i=0;i<n;i++){
+    var cx2=pl+slot*i+slot/2;
+    var cy2=pt+cH-cH*cumulative[i]/maxC;
+    ctx.beginPath();ctx.arc(cx2,cy2,3,0,Math.PI*2);ctx.fill();
   }
 }
-
-function buildLeaderboard(listId, data, typeFilter) {
-  var filtered = data.filter(function(r){return r.Type===typeFilter;});
-  var scores = {};
+function buildLeaderboard(listId,data,typeFilter){
+  var filtered=data.filter(function(r){return r.Type===typeFilter;});
+  var scores={};
   filtered.forEach(function(r){scores[r.PkMSID]=(scores[r.PkMSID]||0)+r.Reaches;});
-  var sorted = Object.keys(scores).map(function(k){return [k,scores[k]];}).sort(function(a,b){return b[1]-a[1];});
-  var top10 = sorted.slice(0,10), rest = sorted.slice(10);
-  var list = document.getElementById(listId);
+  var sorted=Object.keys(scores).map(function(k){return[k,scores[k]];}).sort(function(a,b){return b[1]-a[1];});
+  var top10=sorted.slice(0,10),rest=sorted.slice(10);
+  var list=document.getElementById(listId);
   list.innerHTML='';
-  if (!top10.length){list.innerHTML='<div style="color:#8ca0be;font-size:12px;padding:10px 8px">No data.</div>';return;}
+  if(!top10.length){list.innerHTML='<div style="color:#8ca0be;font-size:12px;padding:10px 8px">No data.</div>';return;}
   top10.forEach(function(item,i){
-    var d=document.createElement('div'); d.className='lb-item';
+    var d=document.createElement('div');d.className='lb-item';
     d.innerHTML='<span class="lb-rank'+(i<3?' top3':'')+'">'+( i+1)+'</span><span class="lb-name">'+item[0]+'</span><span class="lb-score">'+item[1].toLocaleString()+'</span>';
     list.appendChild(d);
   });
-  if (rest.length){
-    var hr=document.createElement('hr'); hr.className='lb-divider'; list.appendChild(hr);
-    var lbl=document.createElement('div'); lbl.className='lb-remaining-label'; lbl.textContent='Remaining'; list.appendChild(lbl);
+  if(rest.length){
+    var hr=document.createElement('hr');hr.className='lb-divider';list.appendChild(hr);
+    var lbl=document.createElement('div');lbl.className='lb-remaining-label';lbl.textContent='Remaining';list.appendChild(lbl);
     rest.forEach(function(item,i){
-      var d=document.createElement('div'); d.className='lb-item';
+      var d=document.createElement('div');d.className='lb-item';
       d.innerHTML='<span class="lb-rank">'+(i+11)+'</span><span class="lb-name">'+item[0]+'</span><span class="lb-score">'+item[1].toLocaleString()+'</span>';
       list.appendChild(d);
     });
   }
 }
-
-function togglePod(data) {
-  var hasPod = data.some(function(r){return r.Type==='Active-Discrete';});
-  var panel  = document.getElementById('lb-discrete-panel');
-  var grid   = document.getElementById('main-grid');
-  panel.style.display = hasPod ? '' : 'none';
-  hasPod ? grid.classList.remove('no-pod') : grid.classList.add('no-pod');
+function togglePod(data){
+  var hasPod=data.some(function(r){return r.Type==='Active-Discrete';});
+  var panel=document.getElementById('lb-discrete-panel');
+  var grid=document.getElementById('main-grid');
+  panel.style.display=hasPod?'':'none';
+  hasPod?grid.classList.remove('no-pod'):grid.classList.add('no-pod');
 }
-
-function refresh() {
-  var data = getFiltered();
+function refresh(){
+  var data=getFiltered();
   buildKPIs(data);
   buildChart(data);
   togglePod(data);
-  buildLeaderboard('lb-batch',    data, 'Active-Batch');
-  buildLeaderboard('lb-discrete', data, 'Active-Discrete');
+  buildLeaderboard('lb-batch',data,'Active-Batch');
+  buildLeaderboard('lb-discrete',data,'Active-Discrete');
+}
+function updateClock(){
+  var now=new Date();
+  var h=now.getHours(),m=String(now.getMinutes()).padStart(2,'0');
+  var ampm=h>=12?'PM':'AM';var h12=h%12||12;
+  document.getElementById('update-time').textContent=h12+':'+m+' '+ampm;
 }
 
-function updateClock() {
-  var now = new Date();
-  var h = now.getHours(), m = String(now.getMinutes()).padStart(2,'0');
-  var ampm = h >= 12 ? 'PM' : 'AM';
-  var h12 = h%12||12;
-  document.getElementById('update-time').textContent = h12+':'+m+' '+ampm;
-  var totalSec = now.getMinutes()*60 + now.getSeconds();
-  var rem = 15*60 - (totalSec % (15*60));
-  var cm = Math.floor(rem/60), cs = String(rem%60).padStart(2,'0');
-  document.getElementById('live-time').textContent = 'Next: '+cm+':'+cs;
+// PASSWORD - change CevaLTC2026 to update the team password
+var DASHBOARD_PASS = 'CevaLTC2026';
+var SESSION_KEY = 'bbw_picker_auth';
+function doLogin(){
+  var val=document.getElementById('login-input').value;
+  if(val===DASHBOARD_PASS){
+    sessionStorage.setItem(SESSION_KEY,'1');
+    document.getElementById('login-overlay').style.display='none';
+    var btn=document.getElementById('login-nav-btn');
+    btn.innerHTML='&#10003; Signed In';btn.classList.add('signed-in');
+    btn.onclick=null;
+    loadCSV();
+  } else {
+    document.getElementById('login-error').textContent='Incorrect password. Try again.';
+    document.getElementById('login-input').value='';
+  }
 }
-
-function getSampleData() {
-  return [
-    {BusinessDate:'11/19/2026',Hour:5,Shift:"1st",Type:"Active-Batch",Reaches:82,Units:487,PkMSID:"B1510979"},
-    {BusinessDate:'11/19/2026',Hour:5,Shift:"1st",Type:"Active-Batch",Reaches:151,Units:901,PkMSID:"B1108319"},
-    {BusinessDate:'11/19/2026',Hour:6,Shift:"1st",Type:"Active-Batch",Reaches:112,Units:989,PkMSID:"B1108321"},
-    {BusinessDate:'11/19/2026',Hour:6,Shift:"1st",Type:"Active-Batch",Reaches:226,Units:2998,PkMSID:"B1510828"},
-    {BusinessDate:'11/19/2026',Hour:7,Shift:"1st",Type:"Active-Batch",Reaches:180,Units:1200,PkMSID:"B1510979"},
-    {BusinessDate:'11/19/2026',Hour:7,Shift:"1st",Type:"Active-Discrete",Reaches:230,Units:1380,PkMSID:"D1107221"},
-    {BusinessDate:'11/19/2026',Hour:8,Shift:"1st",Type:"Active-Batch",Reaches:195,Units:1380,PkMSID:"B1510979"},
-    {BusinessDate:'11/19/2026',Hour:9,Shift:"1st",Type:"Active-Discrete",Reaches:290,Units:1740,PkMSID:"D1107221"}
-  ];
+function showLogin(){
+  document.getElementById('login-overlay').style.display='flex';
+  document.getElementById('login-input').value='';
+  document.getElementById('login-error').textContent='';
 }
+function checkAuth(){
+  if(sessionStorage.getItem(SESSION_KEY)==='1'){
+    document.getElementById('login-overlay').style.display='none';
+    var btn=document.getElementById('login-nav-btn');
+    btn.innerHTML='&#10003; Signed In';btn.classList.add('signed-in');
+    btn.onclick=null;
+    return true;
+  }
+  return false;
+}
+checkAuth();
 
-document.getElementById('shift-filter').addEventListener('change', refresh);
-window.addEventListener('resize', function(){ buildChart(getFiltered()); });
+document.getElementById('shift-filter').addEventListener('change',refresh);
+window.addEventListener('resize',function(){buildChart(getFiltered());});
 updateClock();
-setInterval(updateClock, 1000);
-loadData();
-setInterval(loadData, 15 * 60 * 1000);
+setInterval(updateClock,1000);
+loadCSV();
 </script>
 </body>
 </html>
