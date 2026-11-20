@@ -96,7 +96,7 @@ body { background:#0a1628; color:#fff; font-family:'Segoe UI',Arial,sans-serif; 
 }
 .header-title h1 { font-size:16px; font-weight:800; color:#fff; }
 .header-title p  { font-size:11px; color:#93a8c4; margin-top:3px; }
-.header-right { display:flex; align-items:center; gap:10px; }
+.header-right { display:flex; align-items:center; gap:14px; }
 .update-badge { display:flex; align-items:center; gap:6px; font-size:12px; color:#8ca0be; }
 .dot { width:8px; height:8px; background:#22c55e; border-radius:50%; animation:pulse 2s infinite; }
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
@@ -218,12 +218,12 @@ canvas { display:block; }
 <div class="header">
   <div class="header-title">
     <h1>BBW Warehouse &mdash; LTFC Productivity Dashboard</h1>
-    <p>Reaches &amp; Units Picked by Hour &middot; Excludes Active-Batch Tote &middot; <span id="data-updated">Loading...</span></p>
+    <p>Reaches &amp; Units Picked by Hour &middot; Excludes Active-Batch Tote</p>
   </div>
   <div class="header-right">
     <div class="update-badge">
       <div class="dot"></div>
-      <span>Updated: <span id="update-time">--:-- --</span></span>
+      <span id="data-updated">Loading...</span>
     </div>
     <button class="print-btn" onclick="printLeaderboards()">&#128438; Print Leaderboards</button>
     <button class="login-nav-btn" id="login-nav-btn" onclick="showLogin()">&#128274; Login</button>
@@ -440,26 +440,39 @@ var sampleData = [
   {BusinessDate:'11/20/2026',Hour:14,Shift:'2nd',Type:'Active-Discrete',Reaches:700,Units:3500,PkMSID:'D1108500'}
 ];
 
+var GITHUB_COMMITS_URL = 'https://api.github.com/repos/cevabbw/bbw-picker-dashboard/commits?path=picker_data.csv&per_page=1';
+
+function fetchFileTimestamp() {
+  var api = new XMLHttpRequest();
+  api.open('GET', GITHUB_COMMITS_URL + '&t=' + Date.now(), true);
+  api.onload = function() {
+    if(api.status === 200) {
+      try {
+        var data = JSON.parse(api.responseText);
+        if(data && data[0] && data[0].commit && data[0].commit.committer) {
+          var d = new Date(data[0].commit.committer.date);
+          var h=d.getHours(),mi=String(d.getMinutes()).padStart(2,'0');
+          var ampm=h>=12?'PM':'AM'; var h12=h%12||12;
+          var updStr='File updated: '+(d.getMonth()+1)+'/'+d.getDate()+' '+h12+':'+mi+' '+ampm;
+          document.getElementById('data-updated').textContent=updStr;
+          window._lastFileUpdStr=updStr;
+        }
+      } catch(e) {
+        document.getElementById('data-updated').textContent='File updated: unknown';
+      }
+    }
+  };
+  api.send();
+}
+
 function loadCSV() {
   var xhr=new XMLHttpRequest();
   xhr.open('GET',CSV_URL+'?t='+Date.now(),true);
   xhr.onload=function(){
     if(xhr.status===200){
       allData=parseCSV(xhr.responseText);
-      var lm=xhr.getResponseHeader('Last-Modified');
-      var updStr='';
-      if(lm){
-        var d=new Date(lm);
-        var h=d.getHours(),mi=String(d.getMinutes()).padStart(2,'0');
-        var ampm=h>=12?'PM':'AM'; var h12=h%12||12;
-        updStr='File updated: '+(d.getMonth()+1)+'/'+d.getDate()+' '+h12+':'+mi+' '+ampm;
-      } else {
-        var now=new Date();
-        var h=now.getHours(),mi=String(now.getMinutes()).padStart(2,'0');
-        var ampm=h>=12?'PM':'AM'; var h12=h%12||12;
-        updStr='Loaded: '+h12+':'+mi+' '+ampm;
-      }
-      document.getElementById('data-updated').textContent=updStr;
+      document.getElementById('data-updated').textContent='Checking...';
+      fetchFileTimestamp();
       refresh();
     } else {
       allData=sampleData;
@@ -776,8 +789,8 @@ function printLeaderboards() {
     +'</style>'
     +'</head><body>'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:8px;border-bottom:3px solid #c8102e">'
-    +'<div><div style="font-size:17px;font-weight:900;color:#0a1628">BBW Warehouse &mdash; LTFC Productivity Dashboard</div>'
-    +'<div style="font-size:11px;color:#555;margin-top:3px">Picker Leaderboards &nbsp;&middot;&nbsp; '+dateLabel+' &nbsp;&middot;&nbsp; '+fileUpdStr+'</div></div>'
+    +'<div><div style="font-size:17px;font-weight:900;color:#0a1628">BBW Warehouse — LTFC Productivity Dashboard</div>'
+    +'<div style="font-size:11px;color:#555;margin-top:3px">Picker Leaderboards · '+dateLabel+' · '+fileUpdStr+'</div></div>'
     +'<div style="font-size:11px;color:#888">Printed: '+nowStr+'</div></div>'
     +'<div style="display:flex;gap:16px;align-items:flex-start">'
     +(batchHTML||'<div style="flex:1;color:#999;font-size:12px">No Active-Batch data.</div>')
@@ -816,11 +829,12 @@ function refresh() {
 }
 
 function updateClock() {
+  // Auto-reload the whole page every 5 minutes so TV screen picks up new data
   var now = new Date();
-  var h = now.getHours(), m = String(now.getMinutes()).padStart(2,'0');
-  var ampm = h >= 12 ? 'PM' : 'AM';
-  var h12 = h%12||12;
-  document.getElementById('update-time').textContent = h12+':'+m+' '+ampm;
+  var totalSec = now.getMinutes()*60 + now.getSeconds();
+  if(totalSec % (5*60) === 0) {
+    location.reload();
+  }
 }
 
 // PASSWORD — change DASHBOARD_PASS to your team password
