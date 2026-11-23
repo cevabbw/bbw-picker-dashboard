@@ -205,6 +205,96 @@ canvas { display:block; }
 .picker-hour-bar-cell { width:110px; }
 .picker-hour-bar-wrap { background:#132240; border-radius:2px; height:8px; width:100%; }
 .picker-hour-bar-fill { background:#3b82f6; border-radius:2px; height:8px; }
+
+/* ── MAIN PAGE TABS ─────────────────────────────────────────────────────────── */
+.page-tabs {
+  background:#0d1f3c; border-bottom:2px solid #1e3a5f;
+  display:flex; align-items:flex-end; padding:0 24px; gap:0;
+}
+.page-tab {
+  font-size:12px; font-weight:700; letter-spacing:.5px; text-transform:uppercase;
+  color:#8ca0be; padding:11px 20px 10px; cursor:pointer; border:none; background:none;
+  border-bottom:3px solid transparent; margin-bottom:-2px; white-space:nowrap;
+}
+.page-tab:hover { color:#fff; }
+.page-tab.active { color:#fff; border-bottom-color:#c8102e; }
+
+.page-view { display:none; }
+.page-view.active { display:block; }
+
+/* ── PRODUCTION SUMMARY TAB ─────────────────────────────────────────────────── */
+.ps-layout { padding:0 24px 24px; }
+.ps-sub-tabs {
+  display:flex; gap:0; border-bottom:1px solid #1e3a5f; margin-bottom:18px;
+}
+.ps-sub-tab {
+  font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase;
+  color:#8ca0be; padding:9px 18px 8px; cursor:pointer; border:none; background:none;
+  border-bottom:3px solid transparent; margin-bottom:-1px; white-space:nowrap;
+}
+.ps-sub-tab:hover { color:#fff; }
+.ps-sub-tab.active { color:#f59e0b; border-bottom-color:#f59e0b; }
+.ps-panel { display:none; }
+.ps-panel.active { display:block; }
+
+/* Daily Summary sub-tab */
+.ps-date-bar {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  padding:12px 0 16px;
+}
+.ps-chart-panel { background:#0d1f3c; border:1px solid #1e3a5f; border-radius:8px; padding:18px; margin-bottom:16px; }
+.ps-chart-title { font-size:12px; font-weight:700; color:#fff; letter-spacing:.5px; text-transform:uppercase; margin-bottom:12px; }
+.ps-canvas-wrap { height:220px; position:relative; }
+.ps-day-table { width:100%; border-collapse:collapse; }
+.ps-day-table th { font-size:10px; color:#8ca0be; font-weight:700; letter-spacing:.5px; text-transform:uppercase; padding:7px 12px; border-bottom:2px solid #1e3a5f; text-align:left; }
+.ps-day-table td { font-size:12px; color:#c8d4e8; padding:7px 12px; border-bottom:1px solid #0a1628; }
+.ps-day-table tr:hover td { background:#0d1f3c; }
+.ps-day-bar-cell { width:160px; }
+.ps-day-bar-wrap { background:#132240; border-radius:2px; height:8px; width:100%; }
+.ps-day-bar-fill { background:#3b82f6; border-radius:2px; height:8px; }
+
+/* Picker Data sub-tab */
+.pk-controls {
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  background:#0d1f3c; border:1px solid #1e3a5f; border-radius:8px;
+  padding:14px 18px; margin-bottom:18px;
+}
+.pk-controls label { font-size:11px; color:#8ca0be; font-weight:700; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; }
+.pk-controls select {
+  background:#132240; color:#fff; border:1px solid #1e3a5f; border-radius:4px;
+  padding:6px 10px; font-size:13px; cursor:pointer; min-width:200px;
+}
+.pk-range-btns { display:flex; gap:6px; flex-wrap:wrap; }
+.pk-range-btn {
+  background:#132240; border:1px solid #1e3a5f; color:#8ca0be;
+  font-size:11px; font-weight:600; padding:5px 12px; border-radius:4px; cursor:pointer;
+}
+.pk-range-btn:hover { border-color:#3b82f6; color:#fff; }
+.pk-range-btn.active { background:#c8102e; border-color:#c8102e; color:#fff; }
+.pk-custom-row { display:none; align-items:center; gap:8px; }
+.pk-custom-row.show { display:flex; }
+.pk-custom-row input[type=date] {
+  background:#132240; border:1px solid #1e3a5f; color:#8ca0be;
+  font-size:12px; padding:4px 8px; border-radius:4px;
+}
+.pk-custom-row input[type=date]:focus { outline:none; border-color:#3b82f6; }
+.pk-apply-btn { background:#3b82f6; border:none; color:#fff; font-size:12px; font-weight:700; padding:5px 12px; border-radius:4px; cursor:pointer; }
+.pk-apply-btn:hover { background:#2563eb; }
+.pk-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:18px; }
+.pk-kpi { background:#0d1f3c; border:1px solid #1e3a5f; border-radius:6px; padding:12px 16px; text-align:center; }
+.pk-kpi-label { font-size:10px; color:#8ca0be; font-weight:700; letter-spacing:.5px; text-transform:uppercase; margin-bottom:4px; }
+.pk-kpi-value { font-size:26px; font-weight:900; color:#fff; line-height:1; }
+.pk-kpi-sub { font-size:10px; color:#8ca0be; margin-top:3px; }
+.pk-chart-panel { background:#0d1f3c; border:1px solid #1e3a5f; border-radius:8px; padding:18px; margin-bottom:16px; }
+.pk-chart-title { font-size:12px; font-weight:700; color:#fff; letter-spacing:.5px; text-transform:uppercase; margin-bottom:12px; }
+.pk-canvas-wrap { height:200px; position:relative; }
+.pk-detail-table { width:100%; border-collapse:collapse; }
+.pk-detail-table th { font-size:10px; color:#8ca0be; font-weight:700; letter-spacing:.5px; text-transform:uppercase; padding:7px 12px; border-bottom:2px solid #1e3a5f; text-align:left; }
+.pk-detail-table td { font-size:12px; color:#c8d4e8; padding:7px 12px; border-bottom:1px solid #0a1628; }
+.pk-detail-table tr:hover td { background:#0d1f3c; }
+.pk-bar-wrap { background:#132240; border-radius:2px; height:8px; width:120px; display:inline-block; vertical-align:middle; }
+.pk-bar-fill { background:#22c55e; border-radius:2px; height:8px; }
+.ps-empty { color:#8ca0be; font-size:13px; padding:32px; text-align:center; }
 </style>
 </head>
 <body>
@@ -258,6 +348,15 @@ canvas { display:block; }
     <div class="login-error" id="login-error"></div>
   </div>
 </div>
+
+<!-- PAGE TABS -->
+<div class="page-tabs">
+  <button class="page-tab active" id="tab-dashboard" onclick="switchPageTab('dashboard')">&#128200; Live Dashboard</button>
+  <button class="page-tab" id="tab-summary" onclick="switchPageTab('summary')">&#128202; Production Summary</button>
+</div>
+
+<!-- LIVE DASHBOARD VIEW -->
+<div class="page-view active" id="view-dashboard">
 
 <div class="date-bar">
   <button class="date-btn active" onclick="setDateMode('today',this)">Today</button>
@@ -340,6 +439,105 @@ canvas { display:block; }
     </div>
   </div>
 </div>
+
+</div><!-- /view-dashboard -->
+
+<!-- PRODUCTION SUMMARY VIEW -->
+<div class="page-view" id="view-summary">
+<div class="ps-layout">
+
+  <!-- Sub-tabs -->
+  <div class="ps-sub-tabs">
+    <button class="ps-sub-tab active" id="pst-daily" onclick="switchSubTab('daily')">&#128197; Daily Summary</button>
+    <button class="ps-sub-tab" id="pst-picker" onclick="switchSubTab('picker')">&#128100; Picker Data</button>
+  </div>
+
+  <!-- DAILY SUMMARY panel -->
+  <div class="ps-panel active" id="psp-daily">
+    <div class="ps-date-bar">
+      <span style="font-size:11px;color:#8ca0be;font-weight:700;letter-spacing:.5px">RANGE:</span>
+      <button class="date-btn active" id="ps-btn-7days" onclick="setPsSummaryRange('7days',this)">Last 7 Days</button>
+      <button class="date-btn" id="ps-btn-30days" onclick="setPsSummaryRange('30days',this)">Last 30 Days</button>
+      <button class="date-btn" id="ps-btn-mtd" onclick="setPsSummaryRange('mtd',this)">Month to Date</button>
+      <button class="date-btn" id="ps-btn-custom" onclick="setPsSummaryRange('custom',this)">Custom&hellip;</button>
+      <div class="custom-range-row" id="ps-custom-row">
+        <input type="date" id="ps-custom-from" />
+        <span>to</span>
+        <input type="date" id="ps-custom-to" />
+        <button class="custom-apply-btn" onclick="applyPsCustom()">Apply</button>
+      </div>
+    </div>
+    <div class="ps-chart-panel">
+      <div class="ps-chart-title" id="ps-chart-title">Total Reaches by Day</div>
+      <div class="ps-canvas-wrap">
+        <canvas id="psDayChart" style="width:100%;height:100%"></canvas>
+      </div>
+    </div>
+    <div class="ps-chart-panel" style="padding:0;overflow:hidden">
+      <table class="ps-day-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Total Reaches</th>
+            <th>Active Pickers</th>
+            <th>Team RPH</th>
+            <th>Avg RPH / Picker</th>
+            <th class="ps-day-bar-cell"></th>
+          </tr>
+        </thead>
+        <tbody id="ps-day-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PICKER DATA panel -->
+  <div class="ps-panel" id="psp-picker">
+    <div class="pk-controls">
+      <div style="display:flex;align-items:center;gap:8px">
+        <label>PICKER:</label>
+        <select id="pk-picker-select" onchange="refreshPickerData()">
+          <option value="">— Select Picker —</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <label>RANGE:</label>
+        <div class="pk-range-btns">
+          <button class="pk-range-btn active" id="pk-btn-today" onclick="setPkRange('today',this)">Today</button>
+          <button class="pk-range-btn" id="pk-btn-yesterday" onclick="setPkRange('yesterday',this)">Yesterday</button>
+          <button class="pk-range-btn" id="pk-btn-7days" onclick="setPkRange('7days',this)">Last 7 Days</button>
+          <button class="pk-range-btn" id="pk-btn-30days" onclick="setPkRange('30days',this)">Last 30 Days</button>
+          <button class="pk-range-btn" id="pk-btn-custom" onclick="setPkRange('custom',this)">Custom&hellip;</button>
+        </div>
+      </div>
+      <div class="pk-custom-row" id="pk-custom-row">
+        <input type="date" id="pk-custom-from" />
+        <span style="color:#8ca0be;font-size:12px">to</span>
+        <input type="date" id="pk-custom-to" />
+        <button class="pk-apply-btn" onclick="applyPkCustom()">Apply</button>
+      </div>
+    </div>
+    <div class="pk-kpis">
+      <div class="pk-kpi"><div class="pk-kpi-label">Total Reaches</div><div class="pk-kpi-value" id="pk-total">--</div><div class="pk-kpi-sub">selected range</div></div>
+      <div class="pk-kpi"><div class="pk-kpi-label">Active Hours</div><div class="pk-kpi-value" id="pk-hours">--</div><div class="pk-kpi-sub">distinct hours</div></div>
+      <div class="pk-kpi"><div class="pk-kpi-label">Avg RPH</div><div class="pk-kpi-value" id="pk-rph">--</div><div class="pk-kpi-sub">reaches per hour</div></div>
+      <div class="pk-kpi"><div class="pk-kpi-label">Days Active</div><div class="pk-kpi-value" id="pk-days">--</div><div class="pk-kpi-sub">days w/ production</div></div>
+    </div>
+    <div class="pk-chart-panel">
+      <div class="pk-chart-title" id="pk-chart-title">Reaches by Hour</div>
+      <div class="pk-canvas-wrap">
+        <canvas id="pkChart" style="width:100%;height:100%"></canvas>
+      </div>
+    </div>
+    <div class="pk-chart-panel" style="padding:0;overflow:hidden" id="pk-detail-wrap">
+      <table class="pk-detail-table" id="pk-detail-table">
+        <thead id="pk-detail-thead"></thead>
+        <tbody id="pk-detail-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</div><!-- /view-summary -->
 
 <script>
 // ── B-NUMBER → NAME LOOKUP (LTC sheet only) ──────────────────────────────────
@@ -676,7 +874,12 @@ function getFiltered() {
       var p=r.BusinessDate.split('/'); return parseInt(p[0],10)===mo&&parseInt(p[2],10)===yr;
     });
   } else if(dateMode==='custom'&&customFrom&&customTo){
-    var cf=new Date(customFrom), ct=new Date(customTo);
+    // Parse date input (yyyy-mm-dd) into M/D/YYYY to match CSV format
+    function inputToMDY(s) {
+      var p=s.split('-'); return parseInt(p[1],10)+'/'+parseInt(p[2],10)+'/'+p[0];
+    }
+    var cfStr=inputToMDY(customFrom), ctStr=inputToMDY(customTo);
+    var cf=new Date(cfStr), ct=new Date(ctStr);
     filtered=allData.filter(function(r){
       var rd=new Date(r.BusinessDate); return rd>=cf&&rd<=ct;
     });
@@ -1010,6 +1213,313 @@ function refresh() {
   buildLeaderboard('lb-discrete', data, 'Active-Discrete');
   buildInactive(data,'batch',   'inactive-badge-batch',   'inactive-count-batch',   'inactive-list-batch');
   buildInactive(data,'discrete','inactive-badge-discrete','inactive-count-discrete','inactive-list-discrete');
+}
+
+// ── PAGE TABS ─────────────────────────────────────────────────────────────────
+function switchPageTab(tab) {
+  document.querySelectorAll('.page-tab').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.page-view').forEach(function(v){v.classList.remove('active');});
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('view-'+tab).classList.add('active');
+  if(tab === 'summary') {
+    populatePkSelect();
+    refreshDailySummary();
+  }
+}
+
+// ── PRODUCTION SUMMARY — DAILY SUMMARY ───────────────────────────────────────
+var psSummaryRange = '7days';
+var psSummaryCustomFrom = null, psSummaryCustomTo = null;
+
+function setPsSummaryRange(mode, btn) {
+  psSummaryRange = mode;
+  document.querySelectorAll('#psp-daily .date-btn').forEach(function(b){b.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+  var cr = document.getElementById('ps-custom-row');
+  if(mode === 'custom') { cr.classList.add('show'); return; }
+  cr.classList.remove('show');
+  refreshDailySummary();
+}
+
+function applyPsCustom() {
+  psSummaryCustomFrom = document.getElementById('ps-custom-from').value;
+  psSummaryCustomTo   = document.getElementById('ps-custom-to').value;
+  if(!psSummaryCustomFrom || !psSummaryCustomTo) return;
+  refreshDailySummary();
+}
+
+function getPsSummaryData() {
+  var now = new Date(); now.setHours(0,0,0,0);
+  if(psSummaryRange === '7days'){
+    var d7 = new Date(now); d7.setDate(d7.getDate()-6);
+    return allData.filter(function(r){return new Date(r.BusinessDate)>=d7;});
+  } else if(psSummaryRange === '30days'){
+    var d30 = new Date(now); d30.setDate(d30.getDate()-29);
+    return allData.filter(function(r){return new Date(r.BusinessDate)>=d30;});
+  } else if(psSummaryRange === 'mtd'){
+    var mo=now.getMonth()+1, yr=now.getFullYear();
+    return allData.filter(function(r){
+      var p=r.BusinessDate.split('/'); return parseInt(p[0],10)===mo&&parseInt(p[2],10)===yr;
+    });
+  } else if(psSummaryRange === 'custom' && psSummaryCustomFrom && psSummaryCustomTo){
+    function iMDY(s){var p=s.split('-');return parseInt(p[1],10)+'/'+parseInt(p[2],10)+'/'+p[0];}
+    var cf=new Date(iMDY(psSummaryCustomFrom)), ct=new Date(iMDY(psSummaryCustomTo));
+    return allData.filter(function(r){var rd=new Date(r.BusinessDate);return rd>=cf&&rd<=ct;});
+  }
+  return allData;
+}
+
+function refreshDailySummary() {
+  var data = getPsSummaryData();
+  var days = getUniqueDates(data);
+  if(!days.length){
+    document.getElementById('ps-chart-title').textContent='Total Reaches by Day — No Data';
+    document.getElementById('ps-day-tbody').innerHTML='<tr><td colspan="6" class="ps-empty">No data in selected range.</td></tr>';
+    var canvas=document.getElementById('psDayChart');
+    if(canvas){var ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);}
+    return;
+  }
+
+  // Per-day totals
+  var dayTotals={}, dayPickers={}, dayPickerHours={};
+  days.forEach(function(d){dayTotals[d]=0; dayPickers[d]={}; dayPickerHours[d]={};});
+  data.forEach(function(r){
+    dayTotals[r.BusinessDate]+=r.Reaches;
+    dayPickers[r.BusinessDate][r.PkMSID]=true;
+    if(!dayPickerHours[r.BusinessDate][r.PkMSID]) dayPickerHours[r.BusinessDate][r.PkMSID]={};
+    dayPickerHours[r.BusinessDate][r.PkMSID][r.Hour]=true;
+  });
+
+  // Chart
+  document.getElementById('ps-chart-title').textContent='Total Reaches by Day';
+  var labels = days.map(function(d){var p=d.split('/');return p[0]+'/'+p[1];});
+  var values = days.map(function(d){return dayTotals[d];});
+  drawSummaryChart('psDayChart', '.ps-canvas-wrap', labels, values, '#3b82f6');
+
+  // Table
+  var maxTotal = Math.max.apply(null, values) || 1;
+  var tbody = document.getElementById('ps-day-tbody');
+  tbody.innerHTML = '';
+  days.forEach(function(d){
+    var total = dayTotals[d];
+    var pickerCount = Object.keys(dayPickers[d]).length;
+    // Team RPH: total reaches / sum of distinct picker-hours
+    var totalPhours = 0;
+    Object.keys(dayPickerHours[d]).forEach(function(p){
+      totalPhours += Object.keys(dayPickerHours[d][p]).length;
+    });
+    var teamRph = totalPhours ? Math.round(total/totalPhours) : 0;
+    // Avg RPH per picker
+    var perPickerRphs = Object.keys(dayPickerHours[d]).map(function(p){
+      var ph = Object.keys(dayPickerHours[d][p]).length;
+      var pr2 = data.filter(function(r){return r.BusinessDate===d&&r.PkMSID===p;})
+                   .reduce(function(s,r){return s+r.Reaches;},0);
+      return ph ? pr2/ph : 0;
+    });
+    var avgRph = perPickerRphs.length
+      ? Math.round(perPickerRphs.reduce(function(s,v){return s+v;},0)/perPickerRphs.length) : 0;
+    var pct = Math.round(total/maxTotal*100);
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td style="font-weight:700">'+d+'</td>'
+      +'<td style="font-weight:900;color:#fff">'+total.toLocaleString()+'</td>'
+      +'<td>'+pickerCount+'</td>'
+      +'<td>'+teamRph.toLocaleString()+'</td>'
+      +'<td>'+avgRph.toLocaleString()+'</td>'
+      +'<td class="ps-day-bar-cell"><div class="ps-day-bar-wrap"><div class="ps-day-bar-fill" style="width:'+pct+'%"></div></div></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// ── PRODUCTION SUMMARY — PICKER DATA ─────────────────────────────────────────
+var pkRange = 'today';
+var pkCustomFrom = null, pkCustomTo = null;
+
+function switchSubTab(tab) {
+  document.querySelectorAll('.ps-sub-tab').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.ps-panel').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('pst-'+tab).classList.add('active');
+  document.getElementById('psp-'+tab).classList.add('active');
+  if(tab === 'picker') populatePkSelect();
+}
+
+function populatePkSelect() {
+  var select = document.getElementById('pk-picker-select');
+  if(!select) return;
+  var current = select.value;
+  var pickers = {};
+  allData.forEach(function(r){ pickers[r.PkMSID]=true; });
+  var sorted = Object.keys(pickers).sort(function(a,b){return getName(a).localeCompare(getName(b));});
+  select.innerHTML = '<option value="">— Select Picker —</option>';
+  sorted.forEach(function(bnum){
+    var opt = document.createElement('option');
+    opt.value = bnum;
+    var label = getName(bnum);
+    opt.textContent = label === bnum ? bnum : label+' ('+bnum+')';
+    if(bnum === current) opt.selected = true;
+    select.appendChild(opt);
+  });
+  if(current) refreshPickerData();
+}
+
+function setPkRange(mode, btn) {
+  pkRange = mode;
+  document.querySelectorAll('.pk-range-btn').forEach(function(b){b.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+  var cr = document.getElementById('pk-custom-row');
+  if(mode === 'custom') { cr.classList.add('show'); return; }
+  cr.classList.remove('show');
+  refreshPickerData();
+}
+
+function applyPkCustom() {
+  pkCustomFrom = document.getElementById('pk-custom-from').value;
+  pkCustomTo   = document.getElementById('pk-custom-to').value;
+  if(!pkCustomFrom || !pkCustomTo) return;
+  refreshPickerData();
+}
+
+function getPkData() {
+  var bnum = document.getElementById('pk-picker-select').value;
+  if(!bnum) return [];
+  var rows = allData.filter(function(r){ return r.PkMSID === bnum; });
+  var today = getTodayStr();
+  var now = new Date(); now.setHours(0,0,0,0);
+  if(pkRange === 'today'){
+    var td = rows.filter(function(r){return r.BusinessDate===today;});
+    if(!td.length){ var dates=getUniqueDates(rows); td=dates.length?rows.filter(function(r){return r.BusinessDate===dates[dates.length-1];}):[];}
+    return td;
+  } else if(pkRange === 'yesterday'){
+    var yest=new Date(now); yest.setDate(yest.getDate()-1);
+    return rows.filter(function(r){return r.BusinessDate===toDateStr(yest);});
+  } else if(pkRange === '7days'){
+    var d7=new Date(now); d7.setDate(d7.getDate()-6);
+    return rows.filter(function(r){return new Date(r.BusinessDate)>=d7;});
+  } else if(pkRange === '30days'){
+    var d30=new Date(now); d30.setDate(d30.getDate()-29);
+    return rows.filter(function(r){return new Date(r.BusinessDate)>=d30;});
+  } else if(pkRange === 'custom' && pkCustomFrom && pkCustomTo){
+    function iMDY2(s){var p=s.split('-');return parseInt(p[1],10)+'/'+parseInt(p[2],10)+'/'+p[0];}
+    var cf=new Date(iMDY2(pkCustomFrom)), ct=new Date(iMDY2(pkCustomTo));
+    return rows.filter(function(r){var rd=new Date(r.BusinessDate);return rd>=cf&&rd<=ct;});
+  }
+  return rows;
+}
+
+function refreshPickerData() {
+  var bnum = document.getElementById('pk-picker-select').value;
+  var data = getPkData();
+
+  var clearKPIs = function(){
+    ['pk-total','pk-hours','pk-rph','pk-days'].forEach(function(id){document.getElementById(id).textContent='--';});
+  };
+
+  if(!bnum){ clearKPIs(); document.getElementById('pk-chart-title').textContent='Reaches by Hour';
+    document.getElementById('pk-detail-tbody').innerHTML='<tr><td colspan="4" class="ps-empty">Select a picker above.</td></tr>';
+    return; }
+
+  if(!data.length){ clearKPIs();
+    ['pk-total','pk-hours','pk-rph','pk-days'].forEach(function(id){document.getElementById(id).textContent='0';});
+    document.getElementById('pk-detail-tbody').innerHTML='<tr><td colspan="4" class="ps-empty">No data for this picker in the selected range.</td></tr>';
+    var c=document.getElementById('pkChart'); if(c){var ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);}
+    return; }
+
+  // KPIs
+  var total = data.reduce(function(s,r){return s+r.Reaches;},0);
+  var hourSet={}; data.forEach(function(r){hourSet[r.Hour+'|'+r.BusinessDate]=true;});
+  var activeHours = Object.keys(hourSet).length;
+  var rph = activeHours ? Math.round(total/activeHours) : 0;
+  var daySet={}; data.forEach(function(r){daySet[r.BusinessDate]=true;});
+  var daysActive = Object.keys(daySet).length;
+  document.getElementById('pk-total').textContent = total.toLocaleString();
+  document.getElementById('pk-hours').textContent = activeHours;
+  document.getElementById('pk-rph').textContent = rph.toLocaleString();
+  document.getElementById('pk-days').textContent = daysActive;
+
+  var days = getUniqueDates(data);
+  var isMultiDay = days.length > 1;
+
+  // Chart
+  if(isMultiDay){
+    document.getElementById('pk-chart-title').textContent = 'Daily Reaches — '+getName(bnum);
+    var dayTotals={}; data.forEach(function(r){dayTotals[r.BusinessDate]=(dayTotals[r.BusinessDate]||0)+r.Reaches;});
+    var dlabels=days.map(function(d){var p=d.split('/');return p[0]+'/'+p[1];});
+    var dvalues=days.map(function(d){return dayTotals[d]||0;});
+    drawSummaryChart('pkChart', '.pk-canvas-wrap', dlabels, dvalues, '#22c55e');
+  } else {
+    document.getElementById('pk-chart-title').textContent = 'Hourly Reaches — '+getName(bnum)+(days[0]?' · '+days[0]:'');
+    var hourMap={}; data.forEach(function(r){hourMap[r.Hour]=(hourMap[r.Hour]||0)+r.Reaches;});
+    var sortedH=Object.keys(hourMap).map(Number).sort(function(a,b){return a-b;});
+    var hlabels=sortedH.map(function(h){var ampm=h>=12?'PM':'AM';var h12=h%12||12;return h12+ampm;});
+    var hvalues=sortedH.map(function(h){return hourMap[h];});
+    drawSummaryChart('pkChart', '.pk-canvas-wrap', hlabels, hvalues, '#3b82f6');
+  }
+
+  // Detail table
+  var thead = document.getElementById('pk-detail-thead');
+  var tbody = document.getElementById('pk-detail-tbody');
+  if(isMultiDay){
+    thead.innerHTML='<tr><th>Date</th><th>Reaches</th><th>Hours</th><th>RPH</th><th></th></tr>';
+    var maxDT = Math.max.apply(null,days.map(function(d){return data.filter(function(r){return r.BusinessDate===d;}).reduce(function(s,r){return s+r.Reaches;},0);}));
+    tbody.innerHTML = days.map(function(d){
+      var dd=data.filter(function(r){return r.BusinessDate===d;});
+      var dt=dd.reduce(function(s,r){return s+r.Reaches;},0);
+      var dh={}; dd.forEach(function(r){dh[r.Hour]=true;});
+      var dhc=Object.keys(dh).length;
+      var dr=dhc?Math.round(dt/dhc):0;
+      var pct=maxDT?Math.round(dt/maxDT*100):0;
+      return '<tr><td style="font-weight:700">'+d+'</td><td style="font-weight:900;color:#fff">'+dt.toLocaleString()+'</td><td>'+dhc+'</td><td>'+dr.toLocaleString()+'</td>'
+        +'<td><div class="pk-bar-wrap"><div class="pk-bar-fill" style="width:'+pct+'%"></div></div></td></tr>';
+    }).join('');
+  } else {
+    thead.innerHTML='<tr><th>Hour</th><th>Reaches</th><th>RPH</th><th></th></tr>';
+    var hourMap2={}; data.forEach(function(r){hourMap2[r.Hour]=(hourMap2[r.Hour]||0)+r.Reaches;});
+    var sh=Object.keys(hourMap2).map(Number).sort(function(a,b){return a-b;});
+    var maxHR=sh.reduce(function(m,h){return Math.max(m,hourMap2[h]);},1);
+    tbody.innerHTML = sh.map(function(h){
+      var ampm=h>=12?'PM':'AM'; var h12=h%12||12;
+      var pct=Math.round(hourMap2[h]/maxHR*100);
+      return '<tr><td style="font-weight:700">'+h12+ampm+'</td><td style="font-weight:900;color:#fff">'+hourMap2[h].toLocaleString()+'</td><td>'+hourMap2[h]+'</td>'
+        +'<td><div class="pk-bar-wrap"><div class="pk-bar-fill" style="width:'+pct+'%"></div></div></td></tr>';
+    }).join('');
+  }
+}
+
+function drawSummaryChart(canvasId, wrapSelector, labels, values, barColor) {
+  var wrap = document.querySelector(wrapSelector);
+  if(!wrap) return;
+  var canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  canvas.width  = wrap.clientWidth  || 760;
+  canvas.height = wrap.clientHeight || 200;
+  var W=canvas.width, H=canvas.height;
+  var ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  var n=values.length;
+  if(!n) return;
+  var pl=56, pr=16, pt=16, pb=36;
+  var cW=W-pl-pr, cH=H-pt-pb;
+  var maxV=Math.max.apply(null,values)||1;
+  var slot=cW/n;
+  var bW=Math.min(slot*0.65, 44);
+  for(var i=0;i<=4;i++){
+    var gy=pt+cH-cH*i/4;
+    ctx.strokeStyle='#1e3a5f'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pl,gy); ctx.lineTo(pl+cW,gy); ctx.stroke();
+    ctx.fillStyle='#8ca0be'; ctx.font='9px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText(Math.round(maxV*i/4).toLocaleString(), pl-4, gy+3);
+  }
+  for(var i=0;i<n;i++){
+    var bx=pl+slot*i+slot/2-bW/2;
+    var bh=cH*values[i]/maxV;
+    var by=pt+cH-bh;
+    ctx.fillStyle=barColor; ctx.globalAlpha=0.85;
+    ctx.fillRect(bx,by,bW,bh);
+    ctx.globalAlpha=1;
+    if(bh>14){ctx.fillStyle='#fff';ctx.font='bold 9px Segoe UI';ctx.textAlign='center';ctx.fillText(values[i].toLocaleString(),bx+bW/2,by+10);}
+    ctx.fillStyle='#8ca0be'; ctx.font='9px Segoe UI'; ctx.textAlign='center';
+    var lbl=labels[i]; if(lbl.length>6) lbl=lbl.substring(0,5);
+    ctx.fillText(lbl, pl+slot*i+slot/2, pt+cH+16);
+  }
 }
 
 function updateClock() {
