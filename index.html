@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BBW Picker Productivity Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#0a1628; color:#fff; font-family:'Segoe UI',Arial,sans-serif; min-height:100vh; }
@@ -43,6 +44,20 @@ body { background:#0a1628; color:#fff; font-family:'Segoe UI',Arial,sans-serif; 
   cursor:pointer; display:flex; align-items:center; gap:6px;
 }
 .print-btn:hover { background:#1e3a5f; color:#fff; }
+.upload-btn {
+  background:#132240; border:1px solid #22c55e; color:#22c55e;
+  font-size:12px; font-weight:600; padding:5px 14px; border-radius:4px;
+  cursor:pointer; display:flex; align-items:center; gap:6px;
+}
+.upload-btn:hover { background:#052e16; color:#fff; }
+.upload-btn.loaded { border-color:#60a5fa; color:#60a5fa; }
+.upload-toast {
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+  background:#0d1f3c; border:1px solid #22c55e; color:#22c55e;
+  font-size:13px; font-weight:700; padding:10px 22px; border-radius:6px;
+  z-index:9000; display:none; white-space:nowrap;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);
+}
 
 @media print {
   body * { visibility:hidden !important; }
@@ -195,6 +210,7 @@ canvas { display:block; }
 <body>
 
 <div id="print-area" style="display:none"></div>
+<div class="upload-toast" id="upload-toast"></div>
 
 <!-- PICKER DRILL-DOWN MODAL -->
 <div class="picker-modal-overlay" id="picker-modal-overlay" onclick="closePickerModal(event)">
@@ -225,6 +241,8 @@ canvas { display:block; }
       <div class="dot"></div>
       <span id="data-updated">Loading...</span>
     </div>
+    <button class="upload-btn" id="upload-btn" onclick="document.getElementById('bnumber-file-input').click()" title="Upload B-Number spreadsheet (LTC sheet)">&#128194; B# List</button>
+    <input type="file" id="bnumber-file-input" accept=".xlsx,.xls" style="display:none" onchange="handleBNumberUpload(this)">
     <button class="print-btn" onclick="printLeaderboards()">&#128438; Print Leaderboards</button>
     <button class="login-nav-btn" id="login-nav-btn" onclick="showLogin()">&#128274; Login</button>
   </div>
@@ -272,6 +290,7 @@ canvas { display:block; }
     <div class="kpi-value" id="kpi-avg-hour">--</div>
     <div class="kpi-sub">total reaches &divide; picker-hours worked</div>
     <div class="kpi-sub" id="kpi-avg-sub" style="margin-top:2px;color:#60a5fa"></div>
+    <div class="kpi-sub" id="kpi-avg-per-picker" style="margin-top:4px;color:#60a5fa;font-weight:700"></div>
   </div>
 </div>
 
@@ -382,8 +401,92 @@ var B_NUMBER_LOOKUP = {
 // Role/non-name patterns — fall back to B-number for these
 var ROLE_PATTERNS = /driver|shift|palletize|training|testing|function|clerk|free|v1|v2|coach|supervisor/i;
 
+// ── CUSTOM B-NUMBER LOOKUP (uploaded, stored in localStorage) ────────────────
+var CUSTOM_LOOKUP_KEY = 'bbw_bnumber_lookup';
+var customLookup = null; // null = not loaded yet
+
+function loadCustomLookup() {
+  try {
+    var stored = localStorage.getItem(CUSTOM_LOOKUP_KEY);
+    if (stored) {
+      customLookup = JSON.parse(stored);
+      markUploadBtn(Object.keys(customLookup).length);
+    }
+  } catch(e) { customLookup = null; }
+}
+
+function markUploadBtn(count) {
+  var btn = document.getElementById('upload-btn');
+  if (!btn) return;
+  if (count > 0) {
+    btn.classList.add('loaded');
+    btn.title = 'B-Number list loaded (' + count + ' entries). Click to update.';
+    btn.innerHTML = '&#10003; B# List';
+  }
+}
+
+function showToast(msg, isError) {
+  var t = document.getElementById('upload-toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  t.style.borderColor = isError ? '#ef4444' : '#22c55e';
+  t.style.color = isError ? '#f87171' : '#22c55e';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(function(){ t.style.display = 'none'; }, 3500);
+}
+
+function handleBNumberUpload(input) {
+  var file = input.files[0];
+  if (!file) return;
+  input.value = ''; // reset so same file can be re-uploaded
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      if (typeof XLSX === 'undefined') {
+        showToast('SheetJS library not loaded. Check internet connection.', true);
+        return;
+      }
+      var wb = XLSX.read(e.target.result, {type:'array'});
+      // Find LTC sheet (case-insensitive)
+      var ltcSheet = null;
+      wb.SheetNames.forEach(function(name) {
+        if (name.toLowerCase() === 'ltc') ltcSheet = wb.Sheets[name];
+      });
+      if (!ltcSheet) {
+        showToast('LTC sheet not found in this file.', true);
+        return;
+      }
+      var rows = XLSX.utils.sheet_to_json(ltcSheet, {header:1, defval:''});
+      var newLookup = {};
+      var count = 0;
+      rows.forEach(function(row) {
+        var bnum = String(row[1] || '').trim(); // Column B = index 1
+        var name = String(row[2] || '').trim(); // Column C = index 2
+        if (bnum && /^B\d+$/i.test(bnum)) {
+          newLookup[bnum] = name;
+          count++;
+        }
+      });
+      if (!count) {
+        showToast('No B-numbers found in Column B of LTC sheet.', true);
+        return;
+      }
+      customLookup = newLookup;
+      try { localStorage.setItem(CUSTOM_LOOKUP_KEY, JSON.stringify(newLookup)); } catch(e) {}
+      markUploadBtn(count);
+      showToast('B-Number list updated — ' + count + ' entries loaded!', false);
+      refresh();
+    } catch(err) {
+      showToast('Error reading file: ' + err.message, true);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
 function getName(bnum) {
-  var raw = B_NUMBER_LOOKUP[bnum];
+  // Custom uploaded lookup takes priority over hardcoded
+  var lookup = (customLookup !== null) ? customLookup : B_NUMBER_LOOKUP;
+  var raw = lookup[bnum];
   if (!raw || raw === '' || ROLE_PATTERNS.test(raw)) return bnum;
   return raw;
 }
@@ -630,9 +733,23 @@ function buildKPIs(data) {
     omittedCount > 0 ? omittedCount+' omitted from count' : 'unique pickers';
 
   document.getElementById('kpi-reaches').textContent = totalR.toLocaleString();
+  // Avg RPH per picker = average of each picker's own RPH
+  var allPickerIds = Object.keys(pickerHours);
+  var pickerReaches = {};
+  data.forEach(function(r){ pickerReaches[r.PkMSID] = (pickerReaches[r.PkMSID]||0) + r.Reaches; });
+  var perPickerRPHs = allPickerIds.map(function(p){
+    var hrs = Object.keys(pickerHours[p]).length;
+    return hrs ? pickerReaches[p] / hrs : 0;
+  });
+  var avgRPHPerPicker = perPickerRPHs.length
+    ? Math.round(perPickerRPHs.reduce(function(s,v){return s+v;},0) / perPickerRPHs.length)
+    : 0;
+
   document.getElementById('kpi-avg-hour').textContent = rph.toLocaleString();
   document.getElementById('kpi-avg-sub').textContent =
     totalPickerHours ? totalR.toLocaleString()+' reaches ÷ '+totalPickerHours+' picker-hrs' : '';
+  document.getElementById('kpi-avg-per-picker').textContent =
+    avgRPHPerPicker ? 'Avg per picker: '+avgRPHPerPicker+' RPH' : '';
 }
 
 function buildInactive(data, type, badgeId, countId, listId) {
@@ -932,6 +1049,7 @@ function checkAuth() {
   return false;
 }
 checkAuth();
+loadCustomLookup();
 
 document.getElementById('shift-filter').addEventListener('change', refresh);
 window.addEventListener('resize', function(){ buildChart(getFiltered()); });
