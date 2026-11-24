@@ -984,6 +984,7 @@ function getFiltered() {
     var yest=new Date(now); yest.setDate(yest.getDate()-1);
     var yestStr=toDateStr(yest);
     filtered=allData.filter(function(r){return r.BusinessDate===yestStr;});
+    if(!filtered.length&&dates.length>=2) filtered=allData.filter(function(r){return r.BusinessDate===dates[dates.length-2];});
   } else if(dateMode==='7days'){
     var d7=new Date(now); d7.setDate(d7.getDate()-6);
     filtered=allData.filter(function(r){return new Date(r.BusinessDate)>=d7;});
@@ -1513,7 +1514,13 @@ function getPkData() {
   } else if(pkRange === 'yesterday'){
     var yest=new Date(now); yest.setDate(yest.getDate()-1);
     var yestStr=toDateStr(yest);
-    return rows.filter(function(r){return r.BusinessDate===yestStr;});
+    var yestRows=rows.filter(function(r){return r.BusinessDate===yestStr;});
+    // If no data for yesterday by calendar date, use second-most-recent date in dataset
+    if(!yestRows.length){
+      var allDates=getUniqueDates(rows);
+      if(allDates.length>=2) yestRows=rows.filter(function(r){return r.BusinessDate===allDates[allDates.length-2];});
+    }
+    return yestRows;
   } else if(pkRange === '7days'){
     var d7=new Date(now); d7.setDate(d7.getDate()-6);
     var d7Str=toDateStr(d7);
