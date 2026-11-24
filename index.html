@@ -723,13 +723,21 @@ function getName(bnum) {
   return raw;
 }
 
-// ── OMIT STATE (persists via localStorage) ───────────────────────────────────
+// ── OMIT STATE (today only — clears automatically on a new day) ──────────────
 var OMIT_KEY = 'bbw_omitted_pickers';
 function getOmitted() {
-  try { return JSON.parse(localStorage.getItem(OMIT_KEY) || '{}'); } catch(e) { return {}; }
+  try {
+    var stored = JSON.parse(localStorage.getItem(OMIT_KEY) || '{}');
+    // If stored date is not today, wipe it
+    if (stored._date !== getTodayStr()) return {};
+    return stored;
+  } catch(e) { return {}; }
 }
 function setOmitted(obj) {
-  try { localStorage.setItem(OMIT_KEY, JSON.stringify(obj)); } catch(e) {}
+  try {
+    obj._date = getTodayStr();
+    localStorage.setItem(OMIT_KEY, JSON.stringify(obj));
+  } catch(e) {}
 }
 function toggleOmit(bnum) {
   var o = getOmitted();
@@ -1088,7 +1096,8 @@ function buildInactive(data, type, badgeId, countId, listId) {
   filtered.forEach(function(r){allPkrs[r.PkMSID]=true;});
   var lastHrPkrs={};
   filtered.filter(function(r){return r.Hour===lastHour;}).forEach(function(r){lastHrPkrs[r.PkMSID]=true;});
-  var inactive=Object.keys(allPkrs).filter(function(p){return !lastHrPkrs[p];});
+  var omitted=getOmitted();
+  var inactive=Object.keys(allPkrs).filter(function(p){return !lastHrPkrs[p] && !omitted[p];});
   if(!inactive.length){badge.style.display='none';return;}
   badge.style.display='inline-flex';
   document.getElementById(countId).textContent=inactive.length;
